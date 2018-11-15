@@ -5,12 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AddNumberActivity">
+    tools:context=".HistoryOfCalculationsActivity">
 
     <TextView
         android:id="@+id/result"
-        android:textSize="30sp"
+        android:textSize="14sp"
         android:layout_width="match_parent"
-        android:gravity="center_horizontal"
         android:layout_height="wrap_content" />
 </android.support.constraint.ConstraintLayout>
