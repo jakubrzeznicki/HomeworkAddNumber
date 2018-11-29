@@ -22,10 +22,11 @@ public class MainActivity extends AppCompatActivity {
     private Button divideNumberButton;
     private Button calculateButton;
     private Button calculateHistoryButton;
+    private Button rightBracketButton;
+    private Button leftBracketButton;
     private String result;
     private BigDecimal score = null;
     private ArrayList<String> calculateHistoryList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +40,18 @@ public class MainActivity extends AppCompatActivity {
         subtractionOperationOnButton();
         multiplicationOperationOnButton();
         divisionOperationOnButton();
-
+        leftBracketOperationOnButton();
+        rightBracketOperationOnButton();
         calculateMathematicalEquation();
 
         goToHistoryOfCalculations();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        calculateHistoryList.clear();
     }
 
     private void init() {
@@ -54,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         divideNumberButton = (Button) findViewById(R.id.divide_number_button);
         calculateButton = (Button) findViewById(R.id.calculate_button);
         calculateHistoryButton = (Button) findViewById(R.id.calculate_history_button);
+        leftBracketButton = (Button) findViewById(R.id.left_bracket_button);
+        rightBracketButton = (Button) findViewById(R.id.right_bracket_button);
     }
 
     private void checkMathematicalOperation(char character) {
@@ -66,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             numberEditText.setText(result + character);
         }
+        numberEditText.setSelection(numberEditText.getText().length());
+    }
+
+    private void checkMathematicalOperation2(char character) {
+        result = numberEditText.getText().toString();
+        numberEditText.setText(result + character);
+
         numberEditText.setSelection(numberEditText.getText().length());
     }
 
@@ -83,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         subtractNumberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkMathematicalOperation('-');
+                checkMathematicalOperation2('-');
             }
         });
 
@@ -107,6 +125,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void leftBracketOperationOnButton() {
+        leftBracketButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkMathematicalOperation2('(');
+            }
+        });
+    }
+
+    private void rightBracketOperationOnButton() {
+        rightBracketButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkMathematicalOperation2(')');
+            }
+        });
+    }
     private void calculateMathematicalEquation() {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
