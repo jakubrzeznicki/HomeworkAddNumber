@@ -1,166 +1,104 @@
 package pl.lodz.uni.math.kuba.homeworkandroid;
 
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.udojava.evalex.Expression;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText numberEditText;
-    private TextView showResultTextView;
-    private Button addNumberButton;
-    private Button subtractNumberButton;
-    private Button multiplyNumberButton;
-    private Button divideNumberButton;
-    private Button calculateButton;
-    private Button calculateHistoryButton;
-    private Button rightBracketButton;
-    private Button leftBracketButton;
-    private String result;
-    private BigDecimal score = null;
-    private ArrayList<String> calculateHistoryList;
+    private TextView resultOfCalculationsView;
+    private String result = "";
+    private Button clickedButton;
+    private Database database = new Database(this);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        calculateHistoryList = new ArrayList<String>();
-
-        init();
-
-        addingOperationOnButton();
-        subtractionOperationOnButton();
-        multiplicationOperationOnButton();
-        divisionOperationOnButton();
-        leftBracketOperationOnButton();
-        rightBracketOperationOnButton();
-        calculateMathematicalEquation();
-
-        goToHistoryOfCalculations();
-
+        initializeVariables();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        calculateHistoryList.clear();
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
     }
 
-    private void init() {
-        numberEditText = (EditText) findViewById(R.id.number_edit_text);
-        showResultTextView = (TextView) findViewById(R.id.show_result_text_view);
-        addNumberButton = (Button) findViewById(R.id.add_number_button);
-        subtractNumberButton = (Button) findViewById(R.id.subtract_number_button);
-        multiplyNumberButton = (Button) findViewById(R.id.multiply_number_button);
-        divideNumberButton = (Button) findViewById(R.id.divide_number_button);
-        calculateButton = (Button) findViewById(R.id.calculate_button);
-        calculateHistoryButton = (Button) findViewById(R.id.calculate_history_button);
-        leftBracketButton = (Button) findViewById(R.id.left_bracket_button);
-        rightBracketButton = (Button) findViewById(R.id.right_bracket_button);
+    private void initializeVariables() {
+        resultOfCalculationsView = findViewById(R.id.result_text_view);
     }
 
-    private void checkMathematicalOperation(char character) {
-        result = numberEditText.getText().toString();
-        if (!(numberEditText.getText().toString().equals(""))) {
-            if (result.charAt(result.length() - 1) != character) {
-                numberEditText.setText(result + character);
-
-            }
+    private String formatDoubleToString(double d) {
+        if (d == (long) d) {
+            return String.format("%d", (long) d);
         } else {
-            numberEditText.setText(result + character);
+            return String.format("%s", d);
         }
-        numberEditText.setSelection(numberEditText.getText().length());
     }
 
-    private void checkMathematicalOperation2(char character) {
-        result = numberEditText.getText().toString();
-        numberEditText.setText(result + character);
-
-        numberEditText.setSelection(numberEditText.getText().length());
-    }
-
-    private void addingOperationOnButton() {
-        addNumberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation('+');
+    public void equalButtonOnClick(View view) {
+        if (result != "") {
+            try {
+                Expression expression = new ExpressionBuilder(result).build();
+                double calculated = expression.evaluate();
+                resultOfCalculationsView.setText(formatDoubleToString(calculated));
+                database.addValue(result + " = " + calculated);
+                result = "";
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, "wrong data", Toast.LENGTH_SHORT).show();
             }
-        });
+        }
+    }
+
+    public void backButtonOnClick(View view) {
+        if (result != null) {
+            if (result.length() > 0) {
+                result = result.substring(0, result.length() - 1);
+            }
+        }
+        resultOfCalculationsView.setText(result);
+    }
+
+    public void mathOperatorButtonOnClick(View view) {
+        clickedButton = (Button) view;
+        String mathOperator = clickedButton.getText().toString();
+        result += mathOperator;
+        resultOfCalculationsView.setText(result);
+    }
+
+
+    public void commaSignButtonOnClick(View view) {
+        if (result != "") {
+            result += ".";
+            resultOfCalculationsView.setText(result);
+        }
+    }
+
+    public void historyButtonOnClick(View view) {
+        Intent intent = new Intent(this, HistoryOfCalculationsActivity.class);
+        startActivity(intent);
+    }
+
+    public void resetTextViewButtonOnClick(View view) {
+        result = "";
+        resultOfCalculationsView.setText(result);
 
     }
 
-    private void subtractionOperationOnButton() {
-        subtractNumberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation2('-');
-            }
-        });
-
-    }
-
-    private void multiplicationOperationOnButton() {
-        multiplyNumberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation('*');
-            }
-        });
-    }
-
-    private void divisionOperationOnButton() {
-        divideNumberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation('/');
-            }
-        });
-    }
-
-    private void leftBracketOperationOnButton() {
-        leftBracketButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation2('(');
-            }
-        });
-    }
-
-    private void rightBracketOperationOnButton() {
-        rightBracketButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkMathematicalOperation2(')');
-            }
-        });
-    }
-    private void calculateMathematicalEquation() {
-        calculateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                score = new Expression(numberEditText.getText().toString()).eval();
-                showResultTextView.setText(score.toString());
-                calculateHistoryList.add(numberEditText.getText().toString() + " = " + score.toString());
-            }
-        });
-    }
-
-    private void goToHistoryOfCalculations() {
-        calculateHistoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, HistoryOfCalculationsActivity.class);
-                intent.putExtra("LIST", calculateHistoryList);
-                startActivity(intent);
-            }
-        });
+    public void numberButtonOnClick(View view) {
+        clickedButton = (Button) view;
+        String number = clickedButton.getText().toString();
+        result += number;
+        resultOfCalculationsView.setText(result);
     }
 }
+

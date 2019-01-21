@@ -8,8 +8,10 @@
     tools:context=".HistoryOfCalculationsActivity">
 
     <TextView
-        android:id="@+id/result"
-        android:textSize="14sp"
+        android:id="@+id/list_of_results_tv"
+        android:textSize="15sp"
         android:layout_width="match_parent"
+        android:gravity="center_horizontal"
         android:layout_height="wrap_content" />
+
 </android.support.constraint.ConstraintLayout>
